@@ -5,21 +5,19 @@ import { getFirestore, collection, doc, setDoc, onSnapshot } from 'firebase/fire
 
 // --- КОНФИГУРАЦИЈА ---
 // Доколку користите Netlify, овие податоци можете да ги преземете од вашиот Firebase Console
-const firebaseConfig = typeof __firebase_config !== 'undefined' 
-  ? JSON.parse(__firebase_config) 
-  : {
-      apiKey: "ВАШИОТ_API_KEY",
-      authDomain: "ВАШИОТ_PROJECT.firebaseapp.com",
-      projectId: "ВАШИОТ_PROJECT_ID",
-      storageBucket: "ВАШИОТ_PROJECT.appspot.com",
-      messagingSenderId: "ВАШИОТ_SENDER_ID",
-      appId: "ВАШИОТ_APP_ID"
-    };
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "ВАШИОТ_API_KEY",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ВАШИОТ_PROJECT.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ВАШИОТ_PROJECT_ID",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ВАШИОТ_PROJECT.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "ВАШИОТ_SENDER_ID",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "ВАШИОТ_APP_ID"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'regional-math-proben-zbir';
+const appId = import.meta.env.VITE_ZBIR_APP_ID || 'regional-math-proben-zbir';
 
 // Помошна компонента за икони
 const Icon = ({ name, size = 20, className = "" }) => {
