@@ -48,7 +48,7 @@ const ZbirLogo = ({ className = "h-16 w-auto" }) => {
       </div>
     );
   }
-  return <img src="лого.jpg" alt="Збир" className={className} onError={() => setError(true)} />;
+  return <img src="/logo.jpg" alt="Збир" className={className} onError={() => setError(true)} />;
 };
 
 const PROBLEMS_BY_GRADE = {
