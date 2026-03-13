@@ -29,6 +29,7 @@ const MathText = ({ text, className = "" }) => {
 
   return (
     <div 
+      key={text}
       ref={containerRef} 
       className={`${className} whitespace-pre-wrap`} 
       dangerouslySetInnerHTML={{ __html: text || "" }} 
