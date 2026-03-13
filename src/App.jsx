@@ -310,14 +310,33 @@ export default function App() {
     const q = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setAllSubmissions(data);
+      // Сортирај ги по последна измена за да бидат најновите горе
+      setAllSubmissions(data.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate)));
+    }, (error) => {
+      console.error("Firestore Admin Snapshot Error:", error);
     });
     return () => unsubscribe();
   }, [view, user]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (userInfo.name && userInfo.email) setView('student');
+    if (userInfo.name && userInfo.email && user) {
+      try {
+        // Регистрирај го ученикот во базата веднаш по најава за да се гледа во Dashboard
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', user.uid), {
+          studentName: userInfo.name,
+          studentEmail: userInfo.email,
+          studentGrade: userInfo.grade,
+          studentTestId: userInfo.testId,
+          lastUpdate: new Date().toISOString()
+        }, { merge: true });
+        setView('student');
+      } catch (err) {
+        console.error("Login Error:", err);
+        // Дури и ако има грешка во базата, дозволи му да влезе за да го гледа тестот
+        setView('student');
+      }
+    }
   };
 
   const handleAdminLogin = (e) => {
