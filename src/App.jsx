@@ -620,7 +620,7 @@ export default function App() {
               <h2 className="text-4xl font-black text-blue-900 uppercase tracking-tighter italic">{currentProblems[activeProblem]?.title || `Задача ${activeProblem + 1}`}</h2>
               <div className="bg-blue-600 text-white px-8 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-200">25 ПОЕНИ</div>
             </div>
-            <div className="p-14 min-h-[350px] flex items-center">
+            <div className="p-14 min-h-[350px]">
               <MathText text={currentProblems[activeProblem]?.text} className="text-3xl leading-relaxed text-slate-700 italic font-medium font-serif" />
             </div>
           </div>
