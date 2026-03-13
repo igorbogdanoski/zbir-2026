@@ -7,8 +7,10 @@ const MathText = ({ text, className = "" }) => {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (!text || !containerRef.current) return;
+
     const renderMath = () => {
-      if (containerRef.current && window.renderMathInElement) {
+      if (window.renderMathInElement) {
         try {
           window.renderMathInElement(containerRef.current, {
             delimiters: [
@@ -23,12 +25,15 @@ const MathText = ({ text, className = "" }) => {
         } catch (err) {
           console.error("KaTeX rendering error:", err);
         }
+      } else {
+        // Пробај пак по кратко време ако уште не е вчитан KaTeX
+        setTimeout(renderMath, 200);
       }
     };
 
     renderMath();
-    // Повторно рендерирање за сигурност по кратко време
-    const timer = setTimeout(renderMath, 300);
+    // Повторно за секој случај по мала пауза
+    const timer = setTimeout(renderMath, 500);
     return () => clearTimeout(timer);
   }, [text]);
 
@@ -36,9 +41,10 @@ const MathText = ({ text, className = "" }) => {
     <div 
       key={text}
       ref={containerRef} 
-      className={`${className} whitespace-pre-wrap`} 
-      dangerouslySetInnerHTML={{ __html: text || "" }} 
-    />
+      className={`${className} whitespace-pre-wrap`}
+    >
+      {text}
+    </div>
   );
 };
 
