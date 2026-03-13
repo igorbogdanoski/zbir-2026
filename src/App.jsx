@@ -50,12 +50,12 @@ const MathText = ({ text, className = "" }) => {
 
 // --- КОНФИГУРАЦИЈА ---
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "ВАШИОТ_API_KEY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ВАШИОТ_PROJECT.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ВАШИОТ_PROJECT_ID",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ВАШИОТ_PROJECT.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "ВАШИОТ_SENDER_ID",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "ВАШИОТ_APP_ID"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -324,10 +324,15 @@ export default function App() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!user) {
+      setShowNotification("Грешка: Не сте поврзани со базата. Проверете ја интернет конекцијата.");
+      return;
+    }
     if (userInfo.name && userInfo.email && user) {
       try {
-        // Регистрирај го ученикот во базата веднаш по најава за да се гледа во Dashboard
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', user.uid), {
+        // Пробај да запишеш во базата за регистрација
+        const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'submissions', user.uid);
+        await setDoc(studentDoc, {
           studentName: userInfo.name,
           studentEmail: userInfo.email,
           studentGrade: userInfo.grade,
@@ -337,8 +342,9 @@ export default function App() {
         setView('student');
       } catch (err) {
         console.error("Login Error:", err);
-        // Дури и ако има грешка во базата, дозволи му да влезе за да го гледа тестот
-        setView('student');
+        // Дури и ако Firestore не дозволува запис (правила), пушти го ученикот да го види тестот
+        setShowNotification("Влегувате во режим на работа офлајн (вашите решенија нема да се зачувуваат на серверот).");
+        setTimeout(() => setView('student'), 2000);
       }
     }
   };
