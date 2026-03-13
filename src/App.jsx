@@ -311,7 +311,11 @@ export default function App() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       // Сортирај ги по последна измена за да бидат најновите горе
-      setAllSubmissions(data.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate)));
+      setAllSubmissions(data.sort((a, b) => {
+        const dateA = new Date(a.lastUpdate || 0);
+        const dateB = new Date(b.lastUpdate || 0);
+        return dateB - dateA;
+      }));
     }, (error) => {
       console.error("Firestore Admin Snapshot Error:", error);
     });
