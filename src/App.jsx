@@ -324,28 +324,28 @@ export default function App() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!user) {
-      setShowNotification("Грешка: Не сте поврзани со базата. Проверете ја интернет конекцијата.");
-      return;
-    }
-    if (userInfo.name && userInfo.email && user) {
-      try {
-        // Пробај да запишеш во базата за регистрација
-        const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'submissions', user.uid);
-        await setDoc(studentDoc, {
-          studentName: userInfo.name,
-          studentEmail: userInfo.email,
-          studentGrade: userInfo.grade,
-          studentTestId: userInfo.testId,
-          lastUpdate: new Date().toISOString()
-        }, { merge: true });
-        setView('student');
-      } catch (err) {
-        console.error("Login Error:", err);
-        // Дури и ако Firestore не дозволува запис (правила), пушти го ученикот да го види тестот
-        setShowNotification("Влегувате во режим на работа офлајн (вашите решенија нема да се зачувуваат на серверот).");
-        setTimeout(() => setView('student'), 2000);
+    if (userInfo.name && userInfo.email) {
+      // Ако имаме корисник (најавен на Firebase), пробај да го регистрираш
+      if (user) {
+        try {
+          const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'submissions', user.uid);
+          await setDoc(studentDoc, {
+            studentName: userInfo.name,
+            studentEmail: userInfo.email,
+            studentGrade: userInfo.grade,
+            studentTestId: userInfo.testId,
+            lastUpdate: new Date().toISOString()
+          }, { merge: true });
+        } catch (err) {
+          console.error("Firestore error during login:", err);
+        }
+      } else {
+        // Ако немаме Firebase user (грешка со Auth), сепак пушти го ученикот
+        console.warn("User not authenticated with Firebase, entering guest mode");
+        setShowNotification("Влегувате како гостин. Проверете дали Anonymous Auth е вклучен во Firebase за зачувување слики.");
       }
+      
+      setView('student');
     }
   };
 
